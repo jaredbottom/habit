@@ -3,7 +3,7 @@ import { TODAY, dateKey, getCount } from '../utils.js';
 
 const NORMAL_WEEKS = 17;
 const EDIT_WEEKS = 52;
-const EDIT_CELL_PX = 13;
+const EDIT_CELL_PX = 16;
 
 export default function Heatmap({ habitId, habit, completions, theme, onToggleDay, editable = false }) {
   const [selected, setSelected] = useState(null);
@@ -47,8 +47,8 @@ export default function Heatmap({ habitId, habit, completions, theme, onToggleDa
     ? {
         display: 'grid',
         gridTemplateColumns: `repeat(${weeks}, ${EDIT_CELL_PX}px)`,
-        gap: 2,
-        width: `${weeks * (EDIT_CELL_PX + 2)}px`,
+        gap: 3,
+        width: `${weeks * (EDIT_CELL_PX + 3)}px`,
       }
     : {
         display: 'grid',
@@ -95,7 +95,7 @@ export default function Heatmap({ habitId, habit, completions, theme, onToggleDa
       <div style={{ overflowX: editable ? 'auto' : 'visible', paddingBottom: editable ? 4 : 0 }}>
         <div style={gridStyle}>
           {Array.from({ length: weeks }).map((_, wi) => (
-            <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: editable ? 2 : 3 }}>
+            <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               {cells.slice(wi * 7, wi * 7 + 7).map((c, di) => {
                 const isSel = c.k === selected;
                 const op = cellOpacity(c.count);
