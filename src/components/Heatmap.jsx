@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { TODAY, dateKey, getCount } from '../utils.js';
 
-export default function Heatmap({ habitId, habit, completions, theme, onToggleDay }) {
+const NORMAL_WEEKS = 17;
+const EDIT_WEEKS = 52;
+const EDIT_CELL_PX = 13;
+
+export default function Heatmap({ habitId, habit, completions, theme, onToggleDay, editable = false }) {
   const [selected, setSelected] = useState(null);
-  const weeks = 17;
+
+  const weeks = editable ? EDIT_WEEKS : NORMAL_WEEKS;
 
   const startDate = new Date(TODAY);
   startDate.setDate(TODAY.getDate() - (weeks * 7 - 1));
@@ -26,7 +31,7 @@ export default function Heatmap({ habitId, habit, completions, theme, onToggleDa
   const isCount = habit?.type === 'count';
 
   const handleTap = (c) => {
-    if (c.isFuture || !onToggleDay) return;
+    if (c.isFuture || !editable || !onToggleDay) return;
     setSelected(c.k);
     onToggleDay(c.k);
   };
@@ -37,67 +42,88 @@ export default function Heatmap({ habitId, habit, completions, theme, onToggleDa
     return 0.25 + 0.75 * (count / maxCount);
   };
 
+  // In edit mode use fixed-size cells with horizontal scroll
+  const gridStyle = editable
+    ? {
+        display: 'grid',
+        gridTemplateColumns: `repeat(${weeks}, ${EDIT_CELL_PX}px)`,
+        gap: 2,
+        width: `${weeks * (EDIT_CELL_PX + 2)}px`,
+      }
+    : {
+        display: 'grid',
+        gridTemplateColumns: `repeat(${weeks}, 1fr)`,
+        gap: 3,
+      };
+
   return (
     <div>
-      <div style={{
-        minHeight: 36, marginBottom: 10,
-        background: selected ? theme.accentLight : 'transparent',
-        borderRadius: 10, padding: selected ? '8px 12px' : '0',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        transition: 'background 0.2s',
-      }}>
-        {selected && selCell ? (
-          <>
-            <span style={{ fontSize: 13, fontWeight: 600, color: theme.accent }}>
-              {selCell.d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-            </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{
-                width: 10, height: 10, borderRadius: 3,
-                background: selCount > 0 ? theme.heatFull : theme.heatEmpty,
-                border: `1.5px solid ${theme.accent}`,
-              }} />
-              <span style={{ fontSize: 13, color: theme.accent, fontWeight: 500 }}>
-                {isCount
-                  ? selCount > 0 ? `${selCount}×${habit.unit ? ' ' + habit.unit : ''}` : 'Not logged'
-                  : selCount > 0 ? 'Completed' : 'Not logged'
-                }
+      {/* Date label bar — only shown in edit mode */}
+      {editable && (
+        <div style={{
+          minHeight: 36, marginBottom: 10,
+          background: selected ? theme.accentLight : 'transparent',
+          borderRadius: 10, padding: selected ? '8px 12px' : '0',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          transition: 'background 0.2s',
+        }}>
+          {selected && selCell ? (
+            <>
+              <span style={{ fontSize: 13, fontWeight: 600, color: theme.accent }}>
+                {selCell.d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
               </span>
-            </div>
-          </>
-        ) : (
-          <span style={{ fontSize: 12, color: theme.subtext, opacity: 0.7 }}>Tap a cell to edit</span>
-        )}
-      </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{
+                  width: 10, height: 10, borderRadius: 3,
+                  background: selCount > 0 ? theme.heatFull : theme.heatEmpty,
+                  border: `1.5px solid ${theme.accent}`,
+                }} />
+                <span style={{ fontSize: 13, color: theme.accent, fontWeight: 500 }}>
+                  {isCount
+                    ? selCount > 0 ? `${selCount}×${habit.unit ? ' ' + habit.unit : ''}` : 'Not logged'
+                    : selCount > 0 ? 'Completed' : 'Not logged'
+                  }
+                </span>
+              </div>
+            </>
+          ) : (
+            <span style={{ fontSize: 12, color: theme.subtext, opacity: 0.7 }}>Tap a cell to toggle</span>
+          )}
+        </div>
+      )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${weeks}, 1fr)`, gap: 3 }}>
-        {Array.from({ length: weeks }).map((_, wi) => (
-          <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {cells.slice(wi * 7, wi * 7 + 7).map((c, di) => {
-              const isSel = c.k === selected;
-              const op = cellOpacity(c.count);
-              return (
-                <div
-                  key={di}
-                  onClick={() => handleTap(c)}
-                  style={{
-                    width: '100%', aspectRatio: '1',
-                    borderRadius: 3,
-                    background: c.isFuture ? 'transparent' : op !== null ? theme.heatFull : theme.heatEmpty,
-                    opacity: c.isFuture ? 0 : op !== null ? op : 1,
-                    cursor: c.isFuture ? 'default' : 'pointer',
-                    outline: isSel ? `2px solid ${theme.accent}` : 'none',
-                    outlineOffset: '1px',
-                    transform: isSel ? 'scale(1.25)' : 'scale(1)',
-                    transition: 'transform 0.15s, background 0.15s',
-                    zIndex: isSel ? 1 : 0,
-                    position: 'relative',
-                  }}
-                />
-              );
-            })}
-          </div>
-        ))}
+      <div style={{ overflowX: editable ? 'auto' : 'visible', paddingBottom: editable ? 4 : 0 }}>
+        <div style={gridStyle}>
+          {Array.from({ length: weeks }).map((_, wi) => (
+            <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: editable ? 2 : 3 }}>
+              {cells.slice(wi * 7, wi * 7 + 7).map((c, di) => {
+                const isSel = c.k === selected;
+                const op = cellOpacity(c.count);
+                return (
+                  <div
+                    key={di}
+                    onClick={() => handleTap(c)}
+                    style={{
+                      width: editable ? `${EDIT_CELL_PX}px` : '100%',
+                      height: editable ? `${EDIT_CELL_PX}px` : undefined,
+                      aspectRatio: editable ? undefined : '1',
+                      borderRadius: 3,
+                      background: c.isFuture ? 'transparent' : op !== null ? theme.heatFull : theme.heatEmpty,
+                      opacity: c.isFuture ? 0 : op !== null ? op : 1,
+                      cursor: c.isFuture || !editable ? 'default' : 'pointer',
+                      outline: isSel ? `2px solid ${theme.accent}` : 'none',
+                      outlineOffset: '1px',
+                      transform: isSel ? 'scale(1.2)' : 'scale(1)',
+                      transition: 'transform 0.15s, background 0.15s',
+                      zIndex: isSel ? 1 : 0,
+                      position: 'relative',
+                    }}
+                  />
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

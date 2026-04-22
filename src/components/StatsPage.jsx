@@ -5,6 +5,7 @@ import { TODAY, TODAY_KEY, dateKey, getCount, calcStreak, calcLongestStreak, cal
 
 export default function StatsPage({ habits, completions, onToggleDay, theme }) {
   const [selected, setSelected] = useState(habits[0]?.id);
+  const [editingHistory, setEditingHistory] = useState(false);
 
   const h = habits.find(x => x.id === selected) || habits[0];
   if (!h) return (
@@ -124,15 +125,26 @@ export default function StatsPage({ habits, completions, onToggleDay, theme }) {
           </div>
         </div>
 
-        {/* 15-week heatmap */}
+        {/* Heatmap */}
         <div style={{ background: theme.card, borderRadius: 16, padding: '16px', border: `1px solid ${theme.cardBorder}`, marginBottom: 24 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: theme.subtext, marginBottom: 12 }}>LAST 15 WEEKS</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: theme.subtext, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{editingHistory ? 'EDIT HISTORY (52 WEEKS)' : 'LAST 17 WEEKS'}</span>
+            <button onClick={() => setEditingHistory(e => !e)} style={{
+              fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 8, border: 'none',
+              background: editingHistory ? theme.accent : theme.heatEmpty,
+              color: editingHistory ? 'white' : theme.subtext,
+              cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
+            }}>
+              {editingHistory ? 'Done' : 'Edit'}
+            </button>
+          </div>
           <Heatmap
             habitId={h.id}
             habit={h}
             completions={completions}
             theme={theme}
             onToggleDay={k => onToggleDay(h.id, k)}
+            editable={editingHistory}
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, justifyContent: 'flex-end' }}>
             <span style={{ fontSize: 11, color: theme.subtext }}>Less</span>
