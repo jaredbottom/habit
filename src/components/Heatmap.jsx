@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TODAY, dateKey, getCount } from '../utils.js';
 
 const NORMAL_WEEKS = 17;
 const EDIT_WEEKS = 52;
-const EDIT_CELL_PX = 16;
 
 export default function Heatmap({ habitId, habit, completions, theme, onToggleDay, editable = false }) {
   const [selected, setSelected] = useState(null);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (editable && scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, [editable]);
 
   const weeks = editable ? EDIT_WEEKS : NORMAL_WEEKS;
 
@@ -42,19 +48,12 @@ export default function Heatmap({ habitId, habit, completions, theme, onToggleDa
     return 0.25 + 0.75 * (count / maxCount);
   };
 
-  // In edit mode use fixed-size cells with horizontal scroll
-  const gridStyle = editable
-    ? {
-        display: 'grid',
-        gridTemplateColumns: `repeat(${weeks}, ${EDIT_CELL_PX}px)`,
-        gap: 3,
-        width: `${weeks * (EDIT_CELL_PX + 3)}px`,
-      }
-    : {
-        display: 'grid',
-        gridTemplateColumns: `repeat(${weeks}, 1fr)`,
-        gap: 3,
-      };
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: `repeat(${weeks}, 1fr)`,
+    gap: 3,
+    width: editable ? `${(EDIT_WEEKS / NORMAL_WEEKS * 100).toFixed(1)}%` : '100%',
+  };
 
   return (
     <div>
@@ -92,7 +91,7 @@ export default function Heatmap({ habitId, habit, completions, theme, onToggleDa
         </div>
       )}
 
-      <div style={{ overflowX: editable ? 'auto' : 'visible', paddingBottom: editable ? 4 : 0 }}>
+      <div ref={scrollRef} style={{ overflowX: editable ? 'auto' : 'visible', paddingBottom: editable ? 4 : 0 }}>
         <div style={gridStyle}>
           {Array.from({ length: weeks }).map((_, wi) => (
             <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -104,9 +103,8 @@ export default function Heatmap({ habitId, habit, completions, theme, onToggleDa
                     key={di}
                     onClick={() => handleTap(c)}
                     style={{
-                      width: editable ? `${EDIT_CELL_PX}px` : '100%',
-                      height: editable ? `${EDIT_CELL_PX}px` : undefined,
-                      aspectRatio: editable ? undefined : '1',
+                      width: '100%',
+                      aspectRatio: '1',
                       borderRadius: 3,
                       background: c.isFuture ? 'transparent' : op !== null ? theme.heatFull : theme.heatEmpty,
                       opacity: c.isFuture ? 0 : op !== null ? op : 1,
