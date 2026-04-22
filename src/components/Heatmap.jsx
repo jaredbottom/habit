@@ -3,7 +3,7 @@ import { TODAY, dateKey, getCount } from '../utils.js';
 
 export default function Heatmap({ habitId, habit, completions, theme, onToggleDay }) {
   const [selected, setSelected] = useState(null);
-  const weeks = 15;
+  const weeks = 17;
 
   const startDate = new Date(TODAY);
   startDate.setDate(TODAY.getDate() - (weeks * 7 - 1));
