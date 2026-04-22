@@ -18,7 +18,11 @@ async function apiFetch(path, options = {}) {
     ...options,
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
-  if (!res.ok) throw new Error(`${options.method || 'GET'} ${path} failed: ${res.status}`);
+  if (!res.ok) {
+    let detail = '';
+    try { detail = (await res.json()).error || ''; } catch {}
+    throw new Error(`${options.method || 'GET'} ${path} → ${res.status}${detail ? ': ' + detail : ''}`);
+  }
   if (res.status === 204) return null;
   return res.json();
 }
