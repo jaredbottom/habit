@@ -1,0 +1,10 @@
+name = "habit-tracker"
+compatibility_date = "2024-04-01"
+pages_build_output_dir = "dist"
+
+# Set secrets via Cloudflare dashboard or:
+#   wrangler pages secret put TURSO_DATABASE_URL
+#   wrangler pages secret put TURSO_AUTH_TOKEN
+#
+# For local dev, copy .dev.vars.example → .dev.vars and fill in values.
+# Then run: npm run preview
