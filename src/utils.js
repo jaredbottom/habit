@@ -38,9 +38,13 @@ export function calcLongestStreak(habitId, completions) {
 }
 
 export function calcCompletionRate(habitId, completions) {
-  const keys = Object.keys(completions).filter(k => k <= TODAY_KEY).sort().slice(-30);
-  if (!keys.length) return 0;
-  return keys.filter(k => isDone(completions, k, habitId)).length / keys.length;
+  let done = 0;
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(TODAY);
+    d.setDate(TODAY.getDate() - i);
+    if (isDone(completions, dateKey(d), habitId)) done++;
+  }
+  return done / 30;
 }
 
 export function calcTotalCount(habitId, completions) {
