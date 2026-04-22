@@ -49,7 +49,7 @@ export default function StatsPage({ habits, completions, onToggleDay, theme }) {
                 color: sel ? 'white' : theme.subtext,
                 fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0,
                 fontFamily: 'DM Sans, sans-serif', transition: 'all 0.2s',
-              }}>{hab.emoji} {hab.name}</button>
+              }}>{hab.name}</button>
             );
           })}
         </div>
