@@ -25,8 +25,12 @@ export function calcStreak(habitId, completions) {
 }
 
 export function calcLongestStreak(habitId, completions) {
+  const keys = Object.keys(completions).sort();
+  if (!keys.length) return 0;
   let best = 0, cur = 0;
-  for (const k of Object.keys(completions).sort()) {
+  const start = new Date(keys[0]);
+  for (let d = new Date(start); d <= TODAY; d.setDate(d.getDate() + 1)) {
+    const k = dateKey(new Date(d));
     if (isDone(completions, k, habitId)) { cur++; if (cur > best) best = cur; }
     else cur = 0;
   }
