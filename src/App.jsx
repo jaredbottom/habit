@@ -8,7 +8,7 @@ import BottomNav from './components/BottomNav.jsx';
 
 function startDate() {
   const d = new Date(TODAY);
-  d.setDate(TODAY.getDate() - 110);
+  d.setDate(TODAY.getDate() - 120);
   return dateKey(d);
 }
 
