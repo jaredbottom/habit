@@ -1,12 +1,17 @@
 import { getDb, ensureTables, json, err, rowToHabit } from '../_shared/db.js';
 
 export async function onRequestGet({ env }) {
+  console.log('GET /api/habits', {
+    hasUrl: !!env.TURSO_DATABASE_URL,
+    hasToken: !!env.TURSO_AUTH_TOKEN,
+  });
   try {
     const db = getDb(env);
     await ensureTables(db);
     const { rows } = await db.execute('SELECT * FROM habits ORDER BY position, created_at');
     return json(rows.map(rowToHabit));
   } catch (e) {
+    console.error('GET /api/habits failed:', e.message);
     return err(e.message, 500);
   }
 }
@@ -31,6 +36,7 @@ export async function onRequestPost({ request, env }) {
 
     return json({ id, name: name.trim(), emoji, type, unit, position }, 201);
   } catch (e) {
+    console.error('POST /api/habits failed:', e.message);
     return err(e.message, 500);
   }
 }
