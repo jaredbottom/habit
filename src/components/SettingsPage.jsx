@@ -102,7 +102,6 @@ export default function SettingsPage({ habits, theme, themeName, onUpdateHabit, 
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', padding: '12px 14px', gap: 10 }}>
-                <span style={{ fontSize: 20 }}>{h.emoji}</span>
                 <span style={{ flex: 1, fontSize: 15, fontWeight: 500, color: theme.text }}>{h.name}</span>
                 <span style={{ fontSize: 11, color: theme.subtext, background: theme.heatEmpty, borderRadius: 6, padding: '3px 7px', flexShrink: 0 }}>
                   {h.type === 'count' ? `# ${h.unit || 'count'}` : '✓ check'}

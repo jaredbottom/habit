@@ -142,7 +142,7 @@ export default function TodayPage({ habits, completions, theme, onToggle, onDecr
                   opacity: (!isCount && isDoneToday) ? 0.5 : 1, transition: 'all 0.2s',
                   cursor: isCount ? 'default' : 'pointer',
                 }}>
-                  {h.emoji} {h.name}
+                  {h.name}
                   {isCount && h.unit ? <span style={{ fontSize: 12, color: theme.subtext, fontWeight: 400 }}> · {h.unit}</span> : null}
                 </div>
                 {streak > 0 && (
